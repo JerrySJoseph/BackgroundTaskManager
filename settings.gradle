@@ -1,0 +1,3 @@
+include ':BackgroundTask'
+include ':app'
+rootProject.name = "BackgroundTaskManager"
