@@ -19,6 +19,7 @@ import com.example.backgroundtask.AdvancedExecutor;
 import com.example.backgroundtask.BackgroundTask;
 import com.example.backgroundtask.BackgroundTaskManager;
 import com.example.backgroundtask.BackgroundTaskType;
+
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i=0;i<50;i++)
             BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING)
-                    .add("dtask"+i,new DownloadTask("dtask"+i,"param1","param2","param3"));
+                    .add("Download_Task_"+i,new DownloadTask("Download_Task_"+i,"param1","param2","param3"));
 
         BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING).setCallback(callback)
                     .execute();
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"On execution Canceled",Toast.LENGTH_SHORT).show();
         }
     };
+
     private View inflateNewDownloadTask()
     {
         View view=LayoutInflater.from(this).inflate(R.layout.item_download_task,null);

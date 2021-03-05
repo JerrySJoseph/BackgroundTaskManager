@@ -1,3 +1,21 @@
+/**
+ *
+ *  * Copyright (C) 2021 Jerry S Joseph
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
 package com.example.backgroundtask;
 
 
@@ -17,17 +35,46 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-
+/**
+ * BackgroundTaskManager provides the ability to chain multiple tasks into a singleton
+ * instance of backgroundTaskManager. It also includes the ability to process tasks
+ * SERIALLY ( tasks processed one after another) or in PARALLEL ( multiple tasks processed simultaneously).
+ *
+ * BakgroundTaskManager handles thread processing as required and is optimised to handle
+ * tasks efficiently. Maximum PARALLEL tasks that can be executed simultaneously is computed and
+ * processed accordingly. If the TaskQueue exceeds the maximum available cores of a CPU, the all subsequent
+ * tasks are queued for execution.
+ *
+ * This class leverages a custom executor class extended from the base ThreadPoolExecutor with added ability
+ * to PAUSE,RESUME or STOP the execution. These features are handled by static methods:
+ *
+ * BackgroundTaskManager.stopExecution() -> for pausing the further execution of task Queue
+ * NOTE: Its important to note that this method should not be used to cancel individual Tasks, but all.
+ *
+ * BackgroundTaskManager.pauseFurtherExecution() -> for resuming the previously paused execution
+ *
+ * BackgroundTaskManager.resumeExecution() -> for resuming the previously paused execution
+ *
+ * BackgroundTaskManager.cancelTask(taskID) -> for cancelling individual Tasks by ID if not running
+ * NOTE: This method will not interrupt a tasks if it is RUNNING/FINISHED.
+ * It will only cancel tasks which are safe to cancel, i.e. PENDING Tasks
+ *
+ * BackgroundTaskManager.cancelTask(taskID, mayInterruptIfRunning) -> for cancelling individual Tasks by ID even if running
+ * NOTE: This method will interrupt a tasks if it is RUNNING/FINISHED. Use this only if necessary.
+ * It is not recommended to interrupt a running process amidst tasks especially if its an I/O operation
+ *
+* */
 public class BackgroundTaskManager {
 
     //Singleton properties
     static BackgroundTaskManager mInstance;
 
-    static Map<String,BackgroundTask> backgroundTaskArrayMap;
+    static Map<String,Runnable> backgroundTaskArrayMap;
     static Map<String,Future<?>> futureArrayMap;
 
     static AdvancedExecutor sDefaultExecutor;
 
+    static BackgroundTaskType sDefaultbackgroundTaskType=BackgroundTaskType.PARALLEL_PROCESSING;
 
     BackgroundTaskManager(BackgroundTaskType backgroundTaskType) {
 
@@ -41,11 +88,12 @@ public class BackgroundTaskManager {
             backgroundTaskArrayMap=new HashMap<>();
             futureArrayMap=new HashMap<>();
         }
+        sDefaultbackgroundTaskType=backgroundTaskType;
 
     }
 
     public static synchronized BackgroundTaskManager getInstance(BackgroundTaskType backgroundTaskType){
-        if(mInstance==null)
+        if(mInstance==null || sDefaultbackgroundTaskType!=backgroundTaskType)
             mInstance=new BackgroundTaskManager(backgroundTaskType);
 
         return mInstance;
@@ -63,14 +111,14 @@ public class BackgroundTaskManager {
 
     }
 
-    public BackgroundTaskManager add( BackgroundTask backgroundTask) {
+    public BackgroundTaskManager add(BackgroundTask backgroundTask) {
         return add(generateID(),backgroundTask);
     }
 
 
     public static String getIDbyTask(BackgroundTask task) {
         if(backgroundTaskArrayMap!=null)
-           for(Map.Entry<String,BackgroundTask>entry:backgroundTaskArrayMap.entrySet())
+           for(Map.Entry<String,Runnable>entry:backgroundTaskArrayMap.entrySet())
            {
                if(task.equals(entry.getValue()))
                    return entry.getKey();
@@ -79,7 +127,7 @@ public class BackgroundTaskManager {
     }
 
     public BackgroundTaskManager execute() {
-        for(Map.Entry<String,BackgroundTask> b:backgroundTaskArrayMap.entrySet())
+        for(Map.Entry<String,Runnable> b:backgroundTaskArrayMap.entrySet())
         {
             futureArrayMap.put(b.getKey(),sDefaultExecutor.submit(b.getValue()));
         }
