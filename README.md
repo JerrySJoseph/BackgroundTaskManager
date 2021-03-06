@@ -29,12 +29,14 @@ Before you begin, ensure you have met the following requirements:
 
 ### Serial Processing
 
-![animation](gifs/backgroundTaskManager2.gif)
+![animation](gifs/backgroundTaskManager3.gif)
 
 
 ## Usage
 
 ### Adding the Dependencies
+
+Add this gradle dependecy to your app level build.gradle file
 
 ```gradle
 
@@ -42,7 +44,7 @@ Before you begin, ensure you have met the following requirements:
 
 ```
 
-Don't forget to add jitpack in your project level repositories
+Don't forget to add jitpack in your project level build.gradle file
 
 ```gradle
     allprojects {
