@@ -105,29 +105,141 @@ Here is an example of how to chain multiple tasks,
                     .execute();
 ```
 
-execute method is called to start the queue processing.
+invoke execute() method to start the queue processing.
 
-### Creating Tasks
+### Creating Custom Tasks
+
+This library provides an abstract class BackgroundTask to implement your own custom task class. Below is an example demonstrating a custom class tailored to facilitate Download of a file from Network.
+
+```java
+
+/**
+BackgroundTask<Result,Progress,Params> follows AsyncTask pattern to create custom task. 
+Result -> Type of Result you are expecting from the Task ( String in this case)
+Progress -> Type of progress update ( Integer in this case to denote % of download completed )
+Params -> Type of the Parameters that we need to pass (String in this case for URL of file to be downloaded)
+
+*/
+   public class DownloadTask extends BackgroundTask<String,Integer,String>{
+        
+        String taskName;
+
+        public DownloadTask(String taskName, String... strings) {
+            super(strings);
+            this.taskName = taskName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //Invoked before starting execution of Queue
+            //This is the block where you would want to show any type of dialog for progress update 
+        }
+
+        @Override
+        protected void onResult(String s) {
+           //Invoked when a result from this task is recieved.
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            //Invoked when this task gets cancelled anyhow.
+        }
+
+        @Override
+        protected String doWork(String... strings) throws Exception {
+            //Faking a long download progress
+            //You can implement your own logic to fetch Data from Network
+            for(int i=0;i<5;i++)
+            {
+                Thread.sleep(1000);
+                //method to publish progress update
+                publishProgress((i+1)*20);
+            }
+            return "complete";
+        }
+
+        @Override
+        protected void onProgressUpdated(Integer integer) {
+            super.onProgressUpdated(integer);
+            //This is invoked when an update in progress is recieved.
+        }
+
+        @Override
+        protected void onException(Exception exception) {
+            //Invoked when an exception is occured while doing the task
+        }
+
+        @Override
+        protected void onStatusChanged(Status s) {
+            super.onStatusChanged(s);
+            //Invoked when status of the task changes
+            //Status available are : PENDING,RUNNING,FINISHED,CANCELLED,ERROR
+        }
+
+       
 
 
+    }
 
-BackgroundTaskManager provides add() method to add multiple tasks to the TaskQueue for execution. Here is an example of chaining these Tasks,
+```
+
+After creating this custom class, we can chain objects of this task like
 
 ```java
     BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING)
-                    .add("Download_Task_1",new DownloadTask("Download_Task_1","param1","param2","param3"))
-                    .add("Download_Task_2",new DownloadTask("Download_Task_2","param1","param2","param3"))
-                    .add("Download_Task_3",new DownloadTask("Download_Task_3","param1","param2","param3"))
-                    .add("Download_Task_4",new DownloadTask("Download_Task_4","param1","param2","param3"))
-                    .add("Download_Task_5",new DownloadTask("Download_Task_5","param1","param2","param3"))
-                    .add("Download_Task_6",new DownloadTask("Download_Task_6","param1","param2","param3"))
-                    .add("Download_Task_7",new DownloadTask("Download_Task_7","param1","param2","param3"))
-                    .add("Download_Task_8",new DownloadTask("Download_Task_8","param1","param2","param3"))
-                    .execute();
+                    .add(new DownloadTask("Download_Task_1","param1","param2","param3"))
+                    .add(new DownloadTask("Download_Task_2","param1","param2","param3"))
+                    .add(new DownloadTask("Download_Task_3","param1","param2","param3"))
+                    .add(new DownloadTask("Download_Task_4","param1","param2","param3"))
+                    .execute()
 ```
+## Cancelling Tasks
 
-execute method is called to start the queue processing.
+Tasks which are referenced by ID can be cancelled individually. To cancel a task by its ID,
 
+```java
+    BackgroundTaskManager.cancelTask(taskID);   //Cancel the task with taskID if its not running.
+                    ....
+    BackgroundTaskManager.cancelTask(taskID,true); //Cancel the task with taskID even if its running.
+```
+Inorder for cancelling to work, you need to have the taskID for every process. Task ID can be fetched from BackgroundTaskManager by a static method getIDbyTask();
+
+ ```java
+ String taskID = BackgroundTaskManager.getIDbyTask(taskObject);
+ ```
+ Alternatively, we can pass custom taskID while adding tasks to Queues,
+ 
+ ```java
+ BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING)
+                    .add("Download_Task_1",new DownloadTask("Download_Task_1","param1","param2","param3"))  //passing taskID
+                    .add("Download_Task_2",new DownloadTask("Download_Task_2","param1","param2","param3"))  //passing taskID
+                    .add("Download_Task_3",new DownloadTask("Download_Task_3","param1","param2","param3"))  //passing taskID
+                    .add("Download_Task_4",new DownloadTask("Download_Task_4","param1","param2","param3"))  //passing taskID
+                    .add("Download_Task_5",new DownloadTask("Download_Task_5","param1","param2","param3"))  //passing taskID
+                    .add("Download_Task_6",new DownloadTask("Download_Task_6","param1","param2","param3"))  //passing taskID
+                    .add("Download_Task_7",new DownloadTask("Download_Task_7","param1","param2","param3"))  //passing taskID
+                    .add("Download_Task_8",new DownloadTask("Download_Task_8","param1","param2","param3"))  //passing taskID
+                    .execute();
+ ```
+ 
+## Pausing, Resuming and Stopping execution
+
+This library also provides methods to implement pause,resume and stop the entire execution. Below is an example,
+
+```java
+     
+     //For pausing further execution of the Queue
+     BackgroundTaskManager.pauseFurtherExecution();
+     
+     //For resuming the execution if paused
+     BackgroundTaskManager.resumeExecution();
+     
+     //Stop entire execution , cancelling all tasks and reclamation of all resources
+     BackgroundTaskManager.stopExecution();
+```
+ 
 ## Goals
 - [x] Adding multiple _Runnable_ by chaining and execution in a single line.
 - [x] Implement Serial and Parallel processing.
