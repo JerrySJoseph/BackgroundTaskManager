@@ -63,6 +63,9 @@ import java.util.function.Consumer;
  * NOTE: This method will interrupt a tasks if it is RUNNING/FINISHED. Use this only if necessary.
  * It is not recommended to interrupt a running process amidst tasks especially if its an I/O operation
  *
+ * For general operations of tasks, a singleton instance of the BackgroundTaskManager is created
+ *
+ *
 * */
 public class BackgroundTaskManager {
 
@@ -75,6 +78,55 @@ public class BackgroundTaskManager {
     static AdvancedExecutor sDefaultExecutor;
 
     static BackgroundTaskType sDefaultbackgroundTaskType=BackgroundTaskType.PARALLEL_PROCESSING;
+
+    Callable thenCallable,beforeCallable;
+    Runnable thenRunnable,beforeRunnable;
+
+    AdvancedExecutor.AdvancedExecutorCallback internalExecutorCallback= new AdvancedExecutor.AdvancedExecutorCallback() {
+        @Override
+        public void onExecutionBegin() {
+            try
+            {
+                if(beforeRunnable!=null)
+                    beforeRunnable.run();
+                if(beforeCallable!=null)
+                    beforeCallable.call();
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onExecutionpaused() {
+
+        }
+
+        @Override
+        public void onExecutionResumed() {
+
+        }
+
+        @Override
+        public void onExecutionComplete() {
+            try
+            {
+                if(thenRunnable!=null)
+                    thenRunnable.run();
+                if(thenCallable!=null)
+                    thenCallable.call();
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        public void onExecutionCancelled() {
+
+        }
+    };
 
     BackgroundTaskManager(BackgroundTaskType backgroundTaskType) {
 
@@ -89,6 +141,7 @@ public class BackgroundTaskManager {
             futureArrayMap=new HashMap<>();
         }
         sDefaultbackgroundTaskType=backgroundTaskType;
+        sDefaultExecutor.setInternalExecutorCallback(internalExecutorCallback);
 
     }
 
@@ -163,8 +216,7 @@ public class BackgroundTaskManager {
         sDefaultExecutor.resume();
     }
 
-    public BackgroundTaskManager setCallback(AdvancedExecutor.AdvancedExecutorCallback advancedExecutorCallback)
-    {
+    public BackgroundTaskManager setCallback(AdvancedExecutor.AdvancedExecutorCallback advancedExecutorCallback) {
         sDefaultExecutor.setAdvancedExecutorCallback(advancedExecutorCallback);
         return this;
     }
@@ -175,6 +227,28 @@ public class BackgroundTaskManager {
     {
         sDefaultExecutor.shutdownNow();
     }
+
+    public <T> BackgroundTaskManager then(Callable<T> callable)
+    {
+        this.thenCallable=callable;
+        return this;
+    }
+    public  BackgroundTaskManager then(Runnable runnable)
+    {
+        this.thenRunnable=runnable;
+        return this;
+    }
+    public <T> BackgroundTaskManager before(Callable<T> callable)
+    {
+        this.beforeCallable=callable;
+        return this;
+    }
+    public BackgroundTaskManager before(Runnable runnable)
+    {
+        this.beforeRunnable=runnable;
+        return this;
+    }
+
     private String generateID()
     {
         return UUID.randomUUID().toString();

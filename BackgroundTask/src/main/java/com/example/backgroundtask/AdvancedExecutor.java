@@ -52,10 +52,14 @@ public class AdvancedExecutor extends ThreadPoolExecutor {
 
     AtomicBoolean onStarFired=new AtomicBoolean(false);
 
-    AdvancedExecutorCallback advancedExecutorCallback;
+    AdvancedExecutorCallback advancedExecutorCallback,internalExecutorCallback;
 
     public void setAdvancedExecutorCallback(AdvancedExecutorCallback advancedExecutorCallback) {
         this.advancedExecutorCallback = advancedExecutorCallback;
+    }
+
+    public void setInternalExecutorCallback(AdvancedExecutorCallback internalExecutorCallback) {
+        this.internalExecutorCallback = internalExecutorCallback;
     }
 
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
@@ -96,7 +100,7 @@ public class AdvancedExecutor extends ThreadPoolExecutor {
     @Override
     protected void beforeExecute(Thread t, Runnable r) {
         super.beforeExecute(t, r);
-        if(getCompletedTaskCount()==0 && advancedExecutorCallback !=null && !onStarFired.get())
+        if(getCompletedTaskCount()==0 && !onStarFired.get())
         {
             postPreExecute();
             onStarFired.set(true);
@@ -122,7 +126,7 @@ public class AdvancedExecutor extends ThreadPoolExecutor {
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
         Log.e(TAG,"completed :"+getCompletedTaskCount());
-        if(getCompletedTaskCount()==getTaskCount()-1 && advancedExecutorCallback !=null)
+        if(getCompletedTaskCount()==getTaskCount()-1)
             postPostExecute();
     }
 
@@ -161,6 +165,8 @@ public class AdvancedExecutor extends ThreadPoolExecutor {
          public void run() {
             if(advancedExecutorCallback!=null)
                 advancedExecutorCallback.onExecutionComplete();
+            if(internalExecutorCallback!=null)
+                internalExecutorCallback.onExecutionComplete();
          }
      });
     }
@@ -170,6 +176,8 @@ public class AdvancedExecutor extends ThreadPoolExecutor {
             public void run() {
                 if(advancedExecutorCallback!=null)
                     advancedExecutorCallback.onExecutionCancelled();
+                if(internalExecutorCallback!=null)
+                    internalExecutorCallback.onExecutionCancelled();
             }
         });
     }
@@ -179,6 +187,8 @@ public class AdvancedExecutor extends ThreadPoolExecutor {
             public void run() {
                 if(advancedExecutorCallback!=null)
                     advancedExecutorCallback.onExecutionBegin();
+                if(internalExecutorCallback!=null)
+                    internalExecutorCallback.onExecutionBegin();
             }
         });
     }
@@ -188,6 +198,8 @@ public class AdvancedExecutor extends ThreadPoolExecutor {
             public void run() {
                 if(advancedExecutorCallback!=null)
                     advancedExecutorCallback.onExecutionpaused();
+                if(internalExecutorCallback!=null)
+                    internalExecutorCallback.onExecutionpaused();
             }
         });
     }
@@ -197,6 +209,8 @@ public class AdvancedExecutor extends ThreadPoolExecutor {
             public void run() {
                 if(advancedExecutorCallback!=null)
                     advancedExecutorCallback.onExecutionResumed();
+                if(internalExecutorCallback!=null)
+                    internalExecutorCallback.onExecutionResumed();
             }
         });
     }

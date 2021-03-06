@@ -22,6 +22,9 @@ import com.example.backgroundtask.BackgroundTaskType;
 
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -29,12 +32,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        for(int i=0;i<50;i++)
             BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING)
-                    .add("Download_Task_"+i,new DownloadTask("Download_Task_"+i,"param1","param2","param3"));
-
-        BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING).setCallback(callback)
+                    .add("Download_Task_1",new DownloadTask("Download_Task_1","param1","param2","param3"))
+                    .add("Download_Task_2",new DownloadTask("Download_Task_2","param1","param2","param3"))
+                    .add("Download_Task_3",new DownloadTask("Download_Task_3","param1","param2","param3"))
+                    .add("Download_Task_4",new DownloadTask("Download_Task_4","param1","param2","param3"))
+                    .add("Download_Task_5",new DownloadTask("Download_Task_5","param1","param2","param3"))
+                    .add("Download_Task_6",new DownloadTask("Download_Task_6","param1","param2","param3"))
+                    .add("Download_Task_7",new DownloadTask("Download_Task_7","param1","param2","param3"))
+                    .add("Download_Task_8",new DownloadTask("Download_Task_8","param1","param2","param3"))
                     .execute();
+
 
     }
     AdvancedExecutor.AdvancedExecutorCallback callback= new AdvancedExecutor.AdvancedExecutorCallback() {
