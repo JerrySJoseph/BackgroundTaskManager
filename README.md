@@ -39,7 +39,15 @@ allprojects {
     }
 }
 ```
+## Demo
 
+### Parallel Processing
+
+![animation](gifs/backgroundTaskManager2.gif)
+
+### Serial Processing
+
+![animation](gifs/backgroundTaskManager2.gif)
 
 
 ## Contributing to this project
