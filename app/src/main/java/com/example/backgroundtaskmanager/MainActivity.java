@@ -32,46 +32,46 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-            BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING)
-                    .add("Download_Task_1",new DownloadTask("Download_Task_1","param1","param2","param3"))
-                    .add("Download_Task_2",new DownloadTask("Download_Task_2","param1","param2","param3"))
-                    .add("Download_Task_3",new DownloadTask("Download_Task_3","param1","param2","param3"))
-                    .add("Download_Task_4",new DownloadTask("Download_Task_4","param1","param2","param3"))
-                    .add("Download_Task_5",new DownloadTask("Download_Task_5","param1","param2","param3"))
-                    .add("Download_Task_6",new DownloadTask("Download_Task_6","param1","param2","param3"))
-                    .add("Download_Task_7",new DownloadTask("Download_Task_7","param1","param2","param3"))
-                    .add("Download_Task_8",new DownloadTask("Download_Task_8","param1","param2","param3"))
-                    .execute();
+        BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING)
+                .add("Download_Task_1",new DownloadTask("Download_Task_1","param1","param2","param3"))
+                .add("Download_Task_2",new DownloadTask("Download_Task_2","param1","param2","param3"))
+                .add("Download_Task_3",new DownloadTask("Download_Task_3","param1","param2","param3"))
+                .add("Download_Task_4",new DownloadTask("Download_Task_4","param1","param2","param3"))
+                .add("Download_Task_5",new DownloadTask("Download_Task_5","param1","param2","param3"))
+                .add("Download_Task_6",new DownloadTask("Download_Task_6","param1","param2","param3"))
+                .add("Download_Task_7",new DownloadTask("Download_Task_7","param1","param2","param3"))
+                .add("Download_Task_8",new DownloadTask("Download_Task_8","param1","param2","param3"))
+                .setCallback(callback)
+                .execute();
 
 
     }
-    AdvancedExecutor.AdvancedExecutorCallback callback= new AdvancedExecutor.AdvancedExecutorCallback() {
+    AdvancedExecutor.AdvancedExecutorCallback callback = new AdvancedExecutor.AdvancedExecutorCallback() {
         @Override
         public void onExecutionBegin() {
-            Toast.makeText(getApplicationContext(),"Before Start",Toast.LENGTH_SHORT).show();
+            //Invoked just before execution starts
         }
 
         @Override
         public void onExecutionpaused() {
-            Toast.makeText(getApplicationContext(),"Execution Paused",Toast.LENGTH_SHORT).show();
+            //Invoked when execution paused
         }
 
         @Override
         public void onExecutionResumed() {
-            Toast.makeText(getApplicationContext(),"Execution Resumed",Toast.LENGTH_SHORT).show();
+            //Invoked when execution resumes
         }
 
         @Override
         public void onExecutionComplete() {
-            Toast.makeText(getApplicationContext(),"After Complete",Toast.LENGTH_SHORT).show();
+            //Invoked when execution is complete
         }
 
         @Override
         public void onExecutionCancelled() {
-            Toast.makeText(getApplicationContext(),"On execution Canceled",Toast.LENGTH_SHORT).show();
+            //Invoked when execution is cancelled
         }
     };
-
     private View inflateNewDownloadTask()
     {
         View view=LayoutInflater.from(this).inflate(R.layout.item_download_task,null);
@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
             title=root.findViewById(R.id.title);
             title.setText(taskName);
             cancel.setOnClickListener(new View.OnClickListener() {
-                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onClick(View v) {
                     BackgroundTaskManager.cancelTask(taskName,true);
@@ -118,10 +117,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onResult(String s) {
             if(s!=null)
-            {
                 progressIndicator.setIndicatorColor(getResources().getColor(android.R.color.holo_green_light));
-            }
-
         }
 
         @Override
@@ -153,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onException(Exception exception) {
-
             progressIndicator.setIndicatorColor(getResources().getColor(android.R.color.holo_red_light));
         }
 
@@ -170,8 +165,6 @@ public class MainActivity extends AppCompatActivity {
             DownloadTask that = (DownloadTask) o;
             return taskName.equals(that.taskName);
         }
-
-
     }
 
     @Override

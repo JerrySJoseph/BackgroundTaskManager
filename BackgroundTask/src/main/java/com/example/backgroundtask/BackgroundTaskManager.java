@@ -168,6 +168,21 @@ public class BackgroundTaskManager {
         return add(generateID(),backgroundTask);
     }
 
+    public BackgroundTaskManager add(String taskId, Runnable backgroundRunnable) {
+        if(taskId!=null)
+        {
+            if(backgroundTaskArrayMap.containsKey(taskId))
+                throw new TaskExistsException("Task with id: "+taskId+" already exists in the queue.");
+            backgroundTaskArrayMap.put(taskId,backgroundRunnable);
+            return this;
+        }
+        throw new IllegalArgumentException("Task ID cannot be null.");
+
+    }
+
+    public BackgroundTaskManager add(Runnable backgroundRunnable) {
+        return add(generateID(),backgroundRunnable);
+    }
 
     public static String getIDbyTask(BackgroundTask task) {
         if(backgroundTaskArrayMap!=null)
@@ -202,7 +217,7 @@ public class BackgroundTaskManager {
 
     }
 
-    public void cancelTask(String taskId) {
+    public static void cancelTask(String taskId) {
         cancelTask(taskId,false);
     }
 
