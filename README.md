@@ -27,13 +27,18 @@ Before you begin, ensure you have met the following requirements:
 
 Tasks are processed simultaneously reducing the runtime.
 
-![Parallel_processing_anim](gifs/backgroundTaskManager2.gif)
+<p align="center">
+  <img width="auto" height="auto" alt="parallel processing" src="gifs/backgroundTaskManager2.gif">
+</p>
+
 
 ### Serial Processing
 
 Tasks are processed one after other.
 
-![Serial_processing_anim](gifs/backgroundTaskManager3.gif)
+<p align="center">
+  <img width="auto" height="auto" alt="serial processing" src="gifs/backgroundTaskManager3.gif">
+</p>
 
 
 ## Usage
@@ -272,7 +277,10 @@ This library also provides methods to implement pause,resume and stop the entire
                     .execute();
  ```
  
- ![then_before_anim](gifs/backgroundTaskManager4.gif)
+<p align="center">
+  <img width="auto" height="auto" alt="then and before" src="gifs/backgroundTaskManager4.gif">
+</p>
+
  
 ## Execution Callbacks
 Alternately, you can use AdvancedExecutorCallback for more control over executor events.
