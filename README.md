@@ -276,7 +276,7 @@ This library also provides methods to implement pause,resume and stop the entire
                     })
                     .execute();
  ```
- 
+ This is how it works in a nutshell
 <p align="center">
   <img width="auto" height="auto" alt="then and before" src="gifs/backgroundTaskManager4.gif">
 </p>
