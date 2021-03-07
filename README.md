@@ -27,13 +27,13 @@ Before you begin, ensure you have met the following requirements:
 
 Tasks are processed simultaneously reducing the runtime.
 
-![animation](gifs/backgroundTaskManager2.gif)
+![Parallel_processing_anim](gifs/backgroundTaskManager2.gif)
 
 ### Serial Processing
 
 Tasks are processed one after other.
 
-![animation](gifs/backgroundTaskManager3.gif)
+![Serial_processing_anim](gifs/backgroundTaskManager3.gif)
 
 
 ## Usage
@@ -271,6 +271,9 @@ This library also provides methods to implement pause,resume and stop the entire
                     })
                     .execute();
  ```
+ 
+ ![then_before_anim](gifs/backgroundTaskManager4.gif)
+ 
 ## Execution Callbacks
 Alternately, you can use AdvancedExecutorCallback for more control over executor events.
 ```java
