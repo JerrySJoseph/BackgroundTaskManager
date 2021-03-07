@@ -241,7 +241,71 @@ This library also provides methods to implement pause,resume and stop the entire
      //Stop entire execution , cancelling all tasks and reclamation of all resources
      BackgroundTaskManager.stopExecution();
 ```
+ ## then() and before() 
+ Often we need to implement some UI code before and after execution of the background task. To enable this, we have implemented then() and before() inspired by promises in Javascript. This is how we can impplement that,
  
+ ```java
+      BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING)
+                    .before(new Callable<String>() {
+                        @Override
+                        public String call() throws Exception {
+                            //any UI logic needs to be executed just before processing the queue. like opening a progress dialog.
+                            Toast.makeText(getApplicationContext(),"Execution Started",Toast.LENGTH_SHORT).show();
+                            return null;
+                        }
+                    })
+                    .add("Download_Task_1",new DownloadTask("Download_Task_1","param1","param2","param3"))
+                    ....
+                    .add("Download_Task_8",new DownloadTask("Download_Task_8","param1","param2","param3"))
+                    .then(new Callable<String>() {
+                        @Override
+                        public String call() throws Exception {
+                            //any UI logic that needs to be executed after completion of the queue. like closing progress dialog.
+                            Toast.makeText(getApplicationContext(),"Execution Complete",Toast.LENGTH_SHORT).show();
+                            return null;
+                        }
+                    })
+                    .execute();
+ ```
+## Execution Callbacks
+Alternately, you can use AdvancedExecutorCallback for more control over executor events.
+```java
+ AdvancedExecutor.AdvancedExecutorCallback callback = new AdvancedExecutor.AdvancedExecutorCallback() {
+        @Override
+        public void onExecutionBegin() {
+            //Invoked just before execution starts
+        }
+
+        @Override
+        public void onExecutionpaused() {
+            //Invoked when execution paused
+        }
+
+        @Override
+        public void onExecutionResumed() {
+            //Invoked when execution resumes
+        }
+
+        @Override
+        public void onExecutionComplete() {
+            //Invoked when execution is complete
+        }
+
+        @Override
+        public void onExecutionCancelled() {
+            //Invoked when execution is cancelled
+        }
+```
+Then, set the callback in executor instance,
+
+```java
+BackgroundTaskManager.getInstance(BackgroundTaskType.PARALLEL_PROCESSING)
+                .add("Download_Task_1",new DownloadTask("Download_Task_1","param1","param2","param3"))
+                ...
+                .add("Download_Task_8",new DownloadTask("Download_Task_8","param1","param2","param3"))
+                .setCallback(callback)
+                .execute();
+```
 ## Goals
 - [x] Adding multiple _Runnable_ by chaining and execution in a single line.
 - [x] Implement Serial and Parallel processing.
@@ -271,9 +335,8 @@ Alternatively see the GitHub documentation on [creating a pull request](https://
 
 Thanks to the following people who have contributed to this project:
 
-* [@jerrysjoseph](https://github.com/JerrySJoseph) 📖
+* [@jerrysjoseph](https://github.com/JerrySJoseph) :memo: :computer:
 
-You might want to consider using something like the [All Contributors](https://github.com/all-contributors/all-contributors) specification and its [emoji key](https://allcontributors.org/docs/en/emoji-key).
 
 ## Contact
 
@@ -282,4 +345,4 @@ If you want to contact me you can reach me at <jerin.sebastian153@gmail.com>.
 ## License
 <!--- If you're not sure which open license to use see https://choosealicense.com/--->
 
-This project uses the following license: [<license_name>](<link>).
+This project uses the following license: [Apache-2.0](LICENSE.txt).
